@@ -1,24 +1,16 @@
 # jam
 
-Tool that writes a template of an experimental approach to share functionality
-between GameObjects by iterating a static list.
+Tool that writes a Unity MonoBehaviour template of an small and simple approach
+to share functionality between GameObjects by iterating static lists.
 
-Experimental because it's not Object Oriented, or ECS, it's probably an anti
-pattern and that scares some people.
+Inspired by data oriented ideas. Small and fun.
 
-But it's super practical and fun. Leave me alone.
-
-There is an example [here](https://github.com/alvivar/lions).
+Example [here](https://github.com/alvivar/lions).
 
     jam
-    Check out github.com/alvivar/jam for more info!
 
     USAGE:
         jam.exe [SUBCOMMAND]
-
-    FLAGS:
-        -h, --help       Prints help information
-        -V, --version    Prints version information
 
     SUBCOMMANDS:
         help      Prints this message or the help of the given subcommand(s)
