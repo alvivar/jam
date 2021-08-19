@@ -11,7 +11,7 @@ use self_update::cargo_crate_version;
 fn main() {
     let matches = App::new("jam")
         .version(cargo_crate_version!())
-        .about("Check out github.com/alvivar/jam for more info!")
+        .about("github.com/alvivar/jam")
         .setting(ArgRequiredElseHelp)
         .subcommand(
             SubCommand::with_name("new")
