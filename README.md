@@ -6,11 +6,11 @@ between GameObjects by iterating a static list.
 Experimental because it's not Object Oriented, or ECS, it's probably an anti
 pattern and that scares some people.
 
-But it's super practical and fun. Leave alone.
+But it's super practical and fun. Leave me alone.
 
 There is an example [here](https://github.com/alvivar/lions).
 
-    jam 0.1.0
+    jam
     Check out github.com/alvivar/jam for more info!
 
     USAGE:
