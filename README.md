@@ -8,6 +8,8 @@ pattern and that scares some people.
 
 But it's super practical and fun. Leave alone.
 
+There is an example [here](https://github.com/alvivar/lions).
+
     jam 0.1.0
     Check out github.com/alvivar/jam for more info!
 
