@@ -105,14 +105,9 @@ fn main() {
     }
 }
 
-fn write_file(data: &str, filepath: impl AsRef<Path>) {
-    let f = File::create(filepath).unwrap();
-    let mut f = BufWriter::new(f);
-    f.write_all(data.as_bytes()).unwrap();
-}
-
 fn generate_component_string(name: &str) -> String {
     let template = r#"
+
 using UnityEngine;
 
 // #jam
@@ -135,6 +130,7 @@ public class @Component : MonoBehaviour
 
 fn generate_system_string(name: &str) -> String {
     let template = r#"
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -154,6 +150,12 @@ public class @ComponentSystem : MonoBehaviour
 "#;
 
     template.replace("@Component", name).trim().to_string()
+}
+
+fn write_file(data: &str, filepath: impl AsRef<Path>) {
+    let f = File::create(filepath).unwrap();
+    let mut f = BufWriter::new(f);
+    f.write_all(data.as_bytes()).unwrap();
 }
 
 fn update() -> Result<(), Box<dyn std::error::Error>> {
