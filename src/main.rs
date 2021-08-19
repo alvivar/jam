@@ -11,19 +11,18 @@ use self_update::cargo_crate_version;
 fn main() {
     let matches = App::new("jam")
         .version(cargo_crate_version!())
-        .about("github.com/alvivar/jam")
+        .about("Info github.com/alvivar/jam\nExample github.com/alvivar/lions")
         .setting(ArgRequiredElseHelp)
         .subcommand(
             SubCommand::with_name("new")
                 .setting(ArgRequiredElseHelp)
                 .about("Create a Component & System")
+                .arg(Arg::with_name("name").help("Name").required(true).index(1))
                 .arg(
-                    Arg::with_name("name")
-                        .help("Name for the Component & System")
-                        .required(true)
-                        .index(1),
+                    Arg::with_name("output")
+                        .short("o")
+                        .help("Create the .cs files"),
                 )
-                .arg(Arg::with_name("output").short("o").help("Create the files"))
                 .arg(
                     Arg::with_name("nocomp")
                         .long("nocomp")
@@ -35,9 +34,7 @@ fn main() {
                         .help("Ignore the System"),
                 ),
         )
-        .subcommand(
-            SubCommand::with_name("update").about("Self updates to the latest release on Github"),
-        )
+        .subcommand(SubCommand::with_name("update").about("Self updates to the latest version"))
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("new") {
