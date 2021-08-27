@@ -80,7 +80,7 @@ fn main() {
         }
 
         if output {
-            if !nocomp || !nosys {
+            if !nosys || !nocomp {
                 println!();
                 println!();
             }
@@ -143,12 +143,12 @@ public class @Component : MonoBehaviour
 {
     private void OnEnable()
     {
-        @ComponentSystem.entities.Add(this);
+        @ComponentSystem.components.Add(this);
     }
 
     private void OnDisable()
     {
-        @ComponentSystem.entities.Remove(this);
+        @ComponentSystem.components.Remove(this);
     }
 }
 "#;
@@ -164,21 +164,21 @@ using UnityEngine;
 // #jam
 public class @Component : MonoBehaviour
 {
-    public Transform collider;
+    public Transform t;
 
     private void Start()
     {
-        collider = GetComponent<Transform>();
+        t = GetComponent<Transform>();
     }
 
     private void OnEnable()
     {
-        @ComponentSystem.entities.Add(this);
+        @ComponentSystem.components.Add(this);
     }
 
     private void OnDisable()
     {
-        @ComponentSystem.entities.Remove(this);
+        @ComponentSystem.components.Remove(this);
     }
 }
 "#;
