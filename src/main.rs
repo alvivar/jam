@@ -11,7 +11,7 @@ use self_update::cargo_crate_version;
 fn main() {
     let matches = App::new("jam")
         .version(cargo_crate_version!())
-        .about("Info github.com/alvivar/jam\nExample github.com/alvivar/lions")
+        .about("More info at github.com/alvivar/jam\nExample github.com/alvivar/lions")
         .setting(ArgRequiredElseHelp)
         .subcommand(
             SubCommand::with_name("new")
@@ -19,9 +19,14 @@ fn main() {
                 .about("Create a Component & System")
                 .arg(Arg::with_name("name").help("Name").required(true).index(1))
                 .arg(
-                    Arg::with_name("include_start")
-                        .short("s")
-                        .help("Include void Start()"),
+                    Arg::with_name("include_dependency")
+                        .short("d")
+                        .help("Include a dependency example using Start()"),
+                )
+                .arg(
+                    Arg::with_name("include_queue")
+                        .short("q")
+                        .help("Include a queue between the component and system"),
                 )
                 .arg(
                     Arg::with_name("output_files")
@@ -44,20 +49,17 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("new") {
         let name = matches.value_of("name").unwrap();
-        let start = matches.is_present("include_start");
+        let use_start = matches.is_present("include_dependency");
+        let use_queue = matches.is_present("include_queue");
         let output = matches.is_present("output_files");
         let nosys = matches.is_present("no_system");
         let nocomp = matches.is_present("no_component");
 
         let system_file = format!("{}System.cs", name);
-        let system = generate_system_string(name);
+        let system = generate_system_string(name, use_queue);
 
         let component_file = format!("{}.cs", name);
-        let component = if start {
-            get_extended_component(name)
-        } else {
-            get_component(name)
-        };
+        let component = get_component(name, use_start, use_queue);
 
         if output {
             let current_dir = env::current_dir().unwrap();
@@ -85,12 +87,12 @@ fn main() {
                 println!();
             }
 
-            if !nosys {
-                println!("{} generated", system_file);
-            }
-
             if !nocomp {
                 println!("{} generated", component_file);
+            }
+
+            if !nosys {
+                println!("{} generated", system_file);
             }
         }
 
@@ -109,11 +111,15 @@ fn main() {
     }
 }
 
-fn generate_system_string(name: &str) -> String {
-    let template = r#"
+fn generate_system_string(name: &str, use_queue: bool) -> String {
+    let queue = r#"if (c.queue.Count > 0)
+            {
+                var value = c.queue.Dequeue();
+            }"#;
 
-using System.Collections.Generic;
+    let template = r#"
 using UnityEngine;
+using System.Collections.Generic;
 
 // #jam
 public class @ComponentSystem : MonoBehaviour
@@ -124,53 +130,46 @@ public class @ComponentSystem : MonoBehaviour
     {
         foreach (var c in components)
         {
-
+            @Queue
         }
     }
 }
 "#;
 
-    template.replace("@Component", name).trim().to_string()
+    let mut template = template.to_string();
+
+    template = if use_queue {
+        template.replace("@Queue", queue)
+    } else {
+        template.replace("@Queue", "")
+    };
+
+    template.trim().replace("@Component", name)
 }
 
-fn get_component(name: &str) -> String {
-    let template = r#"
+fn get_component(name: &str, use_start: bool, use_queue: bool) -> String {
+    let queue_using = r#"
+using System.Collections.Generic;"#;
 
-using UnityEngine;
-
-// #jam
-public class @Component : MonoBehaviour
-{
-    private void OnEnable()
-    {
-        @ComponentSystem.components.Add(this);
-    }
-
-    private void OnDisable()
-    {
-        @ComponentSystem.components.Remove(this);
-    }
-}
+    let queue = r#"
+    public Queue<bool> queue = new Queue<bool>();
 "#;
 
-    template.replace("@Component", name).trim().to_string()
-}
-
-fn get_extended_component(name: &str) -> String {
-    let template = r#"
-
-using UnityEngine;
-
-// #jam
-public class @Component : MonoBehaviour
-{
-    public Transform t;
+    let start = r#"
+    public Transform dependency;
 
     private void Start()
     {
-        t = GetComponent<Transform>();
+        dependency = GetComponent<Transform>();
     }
+"#;
 
+    let template = r#"
+using UnityEngine;@QueueUsing
+
+// #jam
+public class @Component : MonoBehaviour
+{@Queue@Start
     private void OnEnable()
     {
         @ComponentSystem.components.Add(this);
@@ -180,10 +179,25 @@ public class @Component : MonoBehaviour
     {
         @ComponentSystem.components.Remove(this);
     }
-}
-"#;
+}"#;
 
-    template.replace("@Component", name).trim().to_string()
+    let mut template = template.to_string();
+
+    template = if use_start {
+        template.replace("@Start", start)
+    } else {
+        template.replace("@Start", "")
+    };
+
+    template = if use_queue {
+        template
+            .replace("@QueueUsing", queue_using)
+            .replace("@Queue", queue)
+    } else {
+        template.replace("@QueueUsing", "").replace("@Queue", "")
+    };
+
+    template.trim().replace("@Component", name)
 }
 
 fn write_file(data: &str, filepath: impl AsRef<Path>) {
